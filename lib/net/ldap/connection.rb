@@ -74,7 +74,8 @@ class Net::LDAP::Connection #:nodoc:
 
   module GetbyteForSSLSocket
     def getbyte
-      getc.ord
+      (nextbyte = read(1)) or return
+      nextbyte.ord
     end
   end
 
@@ -465,6 +466,10 @@ class Net::LDAP::Connection #:nodoc:
           else
             raise Net::LDAP::ResponseTypeInvalidError, "invalid response-type in search: #{pdu.app_tag}"
           end
+        end
+
+        if result_pdu.nil?
+          raise Net::LDAP::ResponseMissingOrInvalidError, "response missing"
         end
 
         # count number of pages of results
